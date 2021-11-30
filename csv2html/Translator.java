@@ -4,9 +4,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -56,7 +57,69 @@ public class Translator extends Object
 	 */
 	public String computeNumberOfDays(String periodString)
 	{
-		return null;
+
+		List<String> params = Arrays.asList(periodString.split("〜|年|月|日|"));
+
+		int flag = 0;
+		StringBuilder startYear = new StringBuilder();
+		StringBuilder startMonth = new StringBuilder();
+		StringBuilder startDay = new StringBuilder();
+		StringBuilder endYear = new StringBuilder();
+		StringBuilder endMonth = new StringBuilder();
+		StringBuilder endDay = new StringBuilder();
+
+		for (String aString: params)
+		{
+			if(aString.equals(""))
+			{
+				flag++;
+				System.out.println("null");
+				continue;
+			}
+			switch(flag)
+			{
+				case 0:
+					startYear.append(aString);
+					continue;
+				case 1:
+					startMonth.append(aString);
+					continue;
+				case 2:
+					startDay.append(aString);
+					continue;
+				case 3:
+					continue;
+				case 4:
+					endYear.append(aString);
+					continue;
+				case 5:
+					endMonth.append(aString);
+					continue;
+				case 6:
+					endDay.append(aString);
+					continue;
+			}
+			System.out.println(aString);
+		}
+
+		LocalDate startDays= LocalDate.of(Integer.parseInt(startYear.toString()),
+										Integer.parseInt(startMonth.toString()),
+										Integer.parseInt(startDay.toString()));
+		LocalDate endDays;
+		String returnString;
+
+		if(!endYear.toString().equals(""))
+		{
+			endDays = LocalDate.of(Integer.parseInt(endYear.toString()),
+								   Integer.parseInt(endMonth.toString()),
+					  			   Integer.parseInt(endDay.toString()));
+			returnString = String.valueOf(ChronoUnit.DAYS.between(startDays, endDays) + 1);
+		}else
+		{
+			returnString = "";
+		}
+
+		return returnString;
 	}
 
 	/**
@@ -81,9 +144,11 @@ public class Translator extends Object
 		aDownloader.perform();
 
 		// CSVに由来するテーブルをHTMLに由来するテーブルへと変換する。
-		System.out.println(this.inputTable);
-		this.translate();
-		System.out.println(this.outputTable);
+		//System.out.println(this.inputTable);
+		//System.out.println(this.inputTable.tuples().get(1));
+		this.translate();//変換を行う記述の追加が必要。
+		//System.out.println(this.outputTable);
+		//System.out.println(this.outputTable.tuples().get(0));
 
 		// HTMLに由来するテーブルから書き出す。
 		Writer aWriter = new Writer(this.outputTable);
@@ -121,6 +186,57 @@ public class Translator extends Object
 	 */
 	public void translate()
 	{
+		if(this.inputTable.attributes().getClass() == AttributesForPrimeMinisters.class)
+		{
+			System.out.println("success");
+			for(Tuple inputTuple : this.inputTable.tuples())
+			{
+				if(inputTuple.values().get(0).equals("人目"))continue;
+
+				List<String> values = new ArrayList<String>();
+				AttributesForPrimeMinisters attributesForInput = (AttributesForPrimeMinisters) inputTuple.attributes();
+				AttributesForPrimeMinisters attributesForOutput = (AttributesForPrimeMinisters) this.outputTable.attributes();
+
+				values.add(attributesForOutput.indexOfNo(), 	inputTuple.values().get(attributesForInput.indexOfNo()));
+				values.add(attributesForOutput.indexOfOrder(),  inputTuple.values().get(attributesForInput.indexOfOrder()));
+				values.add(attributesForOutput.indexOfName(),   inputTuple.values().get(attributesForInput.indexOfName()));
+				values.add(attributesForOutput.indexOfKana(),   inputTuple.values().get(attributesForInput.indexOfKana()));
+				values.add(attributesForOutput.indexOfPeriod(), inputTuple.values().get(attributesForInput.indexOfPeriod()));
+				values.add(attributesForOutput.indexOfDays(),   computeNumberOfDays(inputTuple.values().get(attributesForInput.indexOfPeriod())));
+				values.add(attributesForOutput.indexOfSchool(), inputTuple.values().get(attributesForInput.indexOfSchool()));
+				values.add(attributesForOutput.indexOfParty(),  inputTuple.values().get(attributesForInput.indexOfParty()));
+				values.add(attributesForOutput.indexOfPlace(),  inputTuple.values().get(attributesForInput.indexOfPlace()));
+				values.add(attributesForOutput.indexOfImage(),  inputTuple.values().get(attributesForInput.indexOfImage()));
+
+				Tuple outputTuple = new Tuple(this.outputTable.attributes(), values);
+				this.outputTable.add(outputTuple);
+			}
+		}else
+		{
+			System.out.println("Tokugawa");
+			for(Tuple inputTuple : this.inputTable.tuples())
+			{
+				if(inputTuple.values().get(0).equals("代")) continue;
+
+				List<String> values = new ArrayList<String>();
+				AttributesForTokugawaShogunate attributesForInput = (AttributesForTokugawaShogunate) inputTuple.attributes();
+				AttributesForTokugawaShogunate attributesForOutput = (AttributesForTokugawaShogunate) this.outputTable.attributes();
+
+				values.add(attributesForOutput.indexOfNo(),       inputTuple.values().get(attributesForInput.indexOfNo()));
+				values.add(attributesForOutput.indexOfName(),     inputTuple.values().get(attributesForInput.indexOfName()));
+				values.add(attributesForOutput.indexOfKana(),     inputTuple.values().get(attributesForInput.indexOfKana()));
+				values.add(attributesForOutput.indexOfPeriod(),   inputTuple.values().get(attributesForInput.indexOfPeriod()));
+				values.add(attributesForOutput.indexOfDays(),     computeNumberOfDays(inputTuple.values().get(attributesForInput.indexOfPeriod())));
+				values.add(attributesForOutput.indexOfFamily(),   inputTuple.values().get(attributesForInput.indexOfFamily()));
+				values.add(attributesForOutput.indexOfRank(),     inputTuple.values().get(attributesForInput.indexOfRank()));
+				values.add(attributesForOutput.indexOfImage(),    inputTuple.values().get(attributesForInput.indexOfImage()));
+				values.add(attributesForOutput.indexOfFormer(),   inputTuple.values().get(attributesForInput.indexOfFormer()));
+				values.add(attributesForOutput.indexOfCemetery(), inputTuple.values().get(attributesForInput.indexOfCemetery()));
+
+				Tuple outPutTuple = new Tuple(this.outputTable.attributes(), values);
+				this.outputTable.add(outPutTuple);
+			}
+		}
 		return;
 	}
 }

@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.Calendar;
 import utility.StringUtility;
 
 /**
@@ -76,6 +75,28 @@ public class Writer extends IO
 	 */
 	public void writeHeaderOn(BufferedWriter aWriter)
 	{
+		try
+		{
+			aWriter.write("<!DOCTYPE HTML>");
+			aWriter.write("<html lang=\"ja\">");
+			aWriter.write("<head>");
+			aWriter.write("<meta charset=\"UTF-8\" />");
+			aWriter.write("</head>");;
+
+			aWriter.write("<body>");
+			aWriter.write("<header>");
+			if(this.table().attributes().getClass().equals(AttributesForPrimeMinisters.class))
+			{
+				aWriter.write("<h1>総理大臣</h1>");
+			}else
+			{
+				aWriter.write("<h1>徳川幕府</h1>");
+			}
+			aWriter.write("</header>");
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 		return;
 	}
 
@@ -97,6 +118,36 @@ public class Writer extends IO
 	 */
 	public void writeTuplesOn(BufferedWriter aWriter)
 	{
+		try
+		{
+			aWriter.write("<table>");
+			aWriter.write("<thead><tr>");
+			for(String aString : this.attributes().keys())
+			{
+				aWriter.write("<th>");
+				aWriter.write(aString);
+				aWriter.write("</th>");
+			}
+			aWriter.write("</tr></thead>");
+			aWriter.newLine();
+
+			aWriter.write("<tbody>");
+			for(Tuple aTuple : this.table().tuples())
+			{
+				aWriter.write("<tr>");
+				for(String aString : aTuple.values())
+				{
+					aWriter.write("<td>");
+					aWriter.write(aString);
+					aWriter.write("</td>");
+					aWriter.newLine();
+				}
+				aWriter.write("</tr>");
+			}
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 		return;
 	}
 }

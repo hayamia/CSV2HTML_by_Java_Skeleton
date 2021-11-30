@@ -18,12 +18,20 @@ public class AttributesForPrimeMinisters extends Attributes
 		if (aString.compareTo("input") == 0)
 		{
 			String[] aCollection = new String[] { "no", "order", "name", "kana", "period", "school", "party", "place", "image", "thumbnail" };
-			for (String each : aCollection) { this.keys().add(each); this.names().add(new String()); }
+			for (String each : aCollection)
+			{
+				this.keys().add(each);
+				this.names().add(new String());
+			}
 		}
 		if (aString.compareTo("output") == 0)
 		{
 			String[] aCollection = new String[] { "no", "order", "name", "kana", "period", "days", "school", "party", "place", "image" };
-			for (String each : aCollection) { this.keys().add(each); this.names().add(new String()); }
+			for (String each : aCollection)
+			{
+				this.keys().add(each);
+				this.names().add(new String());
+			}
 		}
 
 		return;

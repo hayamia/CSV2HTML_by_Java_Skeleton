@@ -2,6 +2,7 @@ package csv2html;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import utility.ImageUtility;
 
@@ -10,6 +11,8 @@ import utility.ImageUtility;
  */
 public class Downloader extends IO
 {
+	private List<String> csvString;
+
 	/**
 	 * ダウンローダのコンストラクタ。
 	 * @param aTable テーブル
@@ -21,11 +24,18 @@ public class Downloader extends IO
 		return;
 	}
 
+	public List<String> getCsvString()
+	{
+		return csvString;
+	}
+
 	/**
 	 * 総理大臣の情報を記したCSVファイルをダウンロードする。
 	 */
 	public void downloadCSV()
 	{
+		String csvUrl = this.attributes().csvUrl();
+		this.csvString = readTextFromURL(csvUrl);
 		return;
 	}
 
@@ -65,6 +75,13 @@ public class Downloader extends IO
 	 */
 	public void perform()
 	{
+		downloadCSV();//これをリストを回しながら間まで区切り出してタプルに入れたい
+		for(String aLine: this.csvString)
+		{
+			List<String> values = Arrays.asList(aLine.split(","));
+			Tuple aTuple = new Tuple(this.table().attributes(), values);
+			this.table().add(aTuple);
+		}
 		return;
 	}
 }
